@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDLC Çok Katmanlı Akıllı Cam - AHMET GÜRHAN ŞAHİN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --crystal-color: #3b82f6;
+            --ito-color: rgba(0, 255, 255, 0.3);
+            --pet-color: rgba(200, 230, 255, 0.4);
+            --glue-color: rgba(255, 255, 255, 0.2);
+            --glass-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* Katman Konteynırı */
+        .pdlc-stack {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            perspective: 1500px;
+        }
+
+        /* Katman Genel Yapısı */
+        .layer {
+            height: 450px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+            position: relative;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Spesifik Katmanlar */
+        .layer-glass { width: 40px; background: var(--glass-color); backdrop-filter: blur(2px); }
+        .layer-glue { width: 15px; background: var(--glue-color); }
+        .layer-pet { width: 20px; background: var(--pet-color); }
+        .layer-ito { width: 10px; background: var(--ito-color); box-shadow: 0 0 15px transparent; }
+
+        .on .layer-ito { 
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            background: rgba(0, 255, 255, 0.5);
+        }
+
+        /* Kristal Katmanı (Merkez) */
+        .layer-crystals {
+            width: 180px;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            transition: backdrop-filter 0.8s ease;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            writing-mode: horizontal-tb;
+            overflow: hidden;
+        }
+
+        .on .layer-crystals {
+            backdrop-filter: blur(0px);
+        }
+
+        /* Kristal Tasarımı */
+        .crystal {
+            width: 35px;
+            height: 12px;
+            background: var(--crystal-color);
+            border-radius: 20px;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+            opacity: 0.9;
+        }
+
+        /* YATAY HİZALANMA: ON durumunda 0 derece (yatay) */
+        .on .crystal {
+            transform: rotate(0deg);
+            background: #60a5fa;
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.8);
+        }
+
+        /* RASTGELE: OFF durumunda karışık açılar */
+        .off .crystal {
+            transform: rotate(var(--random-rot));
+            opacity: 0.6;
+        }
+
+        /* Işık Işınları */
+        .light-ray {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #fbbf24, transparent);
+            width: 600px;
+            left: -100px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .on .light-ray {
+            opacity: 1;
+            animation: flow 2s linear infinite;
+        }
+
+        @keyframes flow {
+            from { transform: translateX(-100px); }
+            to { transform: translateX(200px); }
+        }
+
+        /* Güç Düğmesi */
+        .btn-power {
+            background: #1e293b;
+            border: 2px solid #334155;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-power.active {
+            border-color: #22c55e;
+            color: #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        /* Özel İsim Stili */
+        .author-badge {
+            background: linear-gradient(90deg, #3b82f6, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 0.875rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            padding-bottom: 2px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-8">
+
+    <div class="text-center mb-10">
+        <!-- İstediğiniz isim buraya eklendi -->
+        <div class="author-badge">AHMET GÜRHAN ŞAHİN</div>
+        <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">İleri Teknoloji PDLC Mimarisi</h1>
+        <p class="text-slate-400 text-sm">Kristaller yatay hizzalandığında foton boşlukları oluşur.</p>
+    </div>
+
+    <!-- Simülasyon Alanı -->
+    <div id="main-container" class="pdlc-stack off relative">
+        
+        <!-- Dinamik Işık Işınları (Sadece Açıkken Görünür) -->
+        <div class="light-ray" style="top: 25%;"></div>
+        <div class="light-ray" style="top: 50%;"></div>
+        <div class="light-ray" style="top: 75%;"></div>
+
+        <!-- SOL KATMANLAR -->
+        <div class="layer layer-glass">Cam</div>
+        <div class="layer layer-glue">Yapıştırıcı</div>
+        <div class="layer layer-pet">PET Film</div>
+        <div class="layer layer-ito">ITO Kaplama</div>
+
+        <!-- MERKEZ: KRİSTAL TABAKASI -->
+        <div class="layer-crystals" id="crystal-layer">
+            <!-- Kristaller JS ile buraya gelecek -->
+        </div>
+
+        <!-- SAĞ KATMANLAR -->
+        <div class="layer layer-ito">ITO Kaplama</div>
+        <div class="layer layer-pet">PET Film</div>
+        <div class="layer layer-glue">Yapıştırıcı</div>
+        <div class="layer layer-glass">Cam</div>
+        
+    </div>
+
+    <!-- Kontroller -->
+    <div class="mt-16 flex flex-col items-center">
+        <button id="power-btn" class="btn-power">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+            SİSTEM GÜCÜ
+        </button>
+        
+        <div id="status-display" class="mt-4 text-sm font-mono text-red-500 font-bold uppercase tracking-widest">
+            MOD: OPAK (DAĞINIK DİZİLİM)
+        </div>
+    </div>
+
+    <div class="mt-12 max-w-2xl text-center text-slate-500 text-sm leading-relaxed">
+        <p><strong>Çalışma Prensibi:</strong> Voltaj uygulandığında (ITO Katmanları), PET film arasındaki sıvı kristaller dikeyden <strong>yatay konuma</strong> geçer. Bu hizzalanma, ışık dalgalarının katmanlar arasından geçebileceği optik koridorlar oluşturur.</p>
+    </div>
+
+    <script>
+        const container = document.getElementById('crystal-layer');
+        const mainContainer = document.getElementById('main-container');
+        const powerBtn = document.getElementById('power-btn');
+        const statusDisplay = document.getElementById('status-display');
+
+        // Kristal oluşturma (4x8 grid = 32 kristal)
+        for (let i = 0; i < 32; i++) {
+            const crystal = document.createElement('div');
+            crystal.className = 'crystal';
+            // Başlangıçta rastgele açı ver
+            const randomRot = Math.floor(Math.random() * 360);
+            crystal.style.setProperty('--random-rot', `${randomRot}deg`);
+            container.appendChild(crystal);
+        }
+
+        let powerOn = false;
+
+        powerBtn.addEventListener('click', () => {
+            powerOn = !powerOn;
+            
+            if (powerOn) {
+                mainContainer.classList.replace('off', 'on');
+                powerBtn.classList.add('active');
+                statusDisplay.innerText = 'MOD: ŞEFFAF (YATAY HİZALANMA)';
+                statusDisplay.classList.replace('text-red-500', 'text-green-500');
+            } else {
+                mainContainer.classList.replace('on', 'off');
+                powerBtn.classList.remove('active');
+                statusDisplay.innerText = 'MOD: OPAK (DAĞINIK DİZİLİM)';
+                statusDisplay.classList.replace('text-green-500', 'text-red-500');
+                
+                // Yeni rastgele açılar ata
+                document.querySelectorAll('.crystal').forEach(c => {
+                    const newRot = Math.floor(Math.random() * 360);
+                    c.style.setProperty('--random-rot', `${newRot}deg`);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
